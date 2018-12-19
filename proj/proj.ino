@@ -38,7 +38,7 @@
 #define NOTE_AS7 3729
 #define NOTE_B7  3951
 #define NOTE_BREAK 0
-
+#define MATRIX_ROW_COL 8
 LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 LedControl lc = LedControl(12, 11, 10, 1);
 
@@ -57,7 +57,7 @@ unsigned long delayTime = 400 ; // Game step in ms
 unsigned long fruitPrevTime = 0;
 unsigned long fruitBlinkTime = 100;
 unsigned long buttonCheckTime = 0;
-unsigned long delayButtonCheck = 150;
+unsigned long delayButtonCheck = 0;
 int fruitLed = true;
 bool flagGameOn = false;
 const int joyStickValueCheck = 52;
@@ -284,7 +284,7 @@ void nextStep() {
     lcd.print(scoreTime);
     lcd.setCursor(0, 1);
     lcd.print("LEVEL");
-    if (scoreCurrent % 6 == 0) { // After reaching length 8, reset to 3, increase difficulty, bigger score multiplier
+    if (scoreCurrent % 5 == 0) { // After reaching length 8, reset to 3, increase difficulty, bigger score multiplier
       snakeLength = 3;
       delayTime = delayTime - 30;
       scoreMultiplier++;
@@ -297,11 +297,11 @@ void nextStep() {
 
 void makeFruit() {
   int x, y;
-  x = random(0, 8);
-  y = random(0, 8);
+  x = random(0, MATRIX_ROW_COL);
+  y = random(0, MATRIX_ROW_COL);
   while (isPartOfSnake(x, y)) { // Check to not spawn on the snake
-    x = random(0, 8);
-    y = random(0, 8);
+    x = random(0, MATRIX_ROW_COL);
+    y = random(0, MATRIX_ROW_COL);
   }
   fruitX = x;
   fruitY = y;
@@ -324,7 +324,7 @@ void checkSnakeSuicide() {
   }
 }
 
-const PROGMEM bool gameOverMessage[8][90] = {
+const PROGMEM bool gameOverMessage[MATRIX_ROW_COL][90] = {
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -338,9 +338,9 @@ const PROGMEM bool gameOverMessage[8][90] = {
 void gameOver() { // Display "GAME OVER" message.
   lc.clearDisplay(0);
   for (int d = 0; d < sizeof(gameOverMessage[0]) - 7; d++) {
-    for (int col = 0; col < 8; col++) {
+    for (int col = 0; col < MATRIX_ROW_COL; col++) {
       delay(3);
-      for (int row = 0; row < 8; row++) {
+      for (int row = 0; row < MATRIX_ROW_COL; row++) {
         // this reads the byte from the PROGMEM and displays it on the screen
         lc.setLed(0, col, row, pgm_read_byte(&(gameOverMessage[row][col + d])));
       }
