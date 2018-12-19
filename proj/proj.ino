@@ -56,6 +56,8 @@ unsigned long prevTime = 0;    // for gamedelay (ms)
 unsigned long delayTime = 400 ; // Game step in ms
 unsigned long fruitPrevTime = 0;
 unsigned long fruitBlinkTime = 100;
+unsigned long buttonCheckTime = 0;
+unsigned long delayButtonCheck = 150;
 int fruitLed = true;
 bool flagGameOn = false;
 const int joyStickValueCheck = 52;
@@ -157,9 +159,12 @@ void loop() {
     }
   }
   if (flagGameOn == true) { // Condition for startin a new game
-    delay(10);
-    checkButtons(); // First checking if there is a button pressed for changing the snakeDirection
 
+    unsigned long currentTimeButtonCheck = millis();
+    if ((currentTimeButtonCheck - buttonCheckTime) >= delayButtonCheck) {
+      checkButtons(); // First checking if there is a button pressed for changing the snakeDirection
+      buttonCheckTime = currentTimeButtonCheck;
+    }
     unsigned long currentTime = millis();
     if ((currentTime - prevTime) >= delayTime) { // After an amount of time the snake is moving
       nextStep();
@@ -189,29 +194,32 @@ int treatValue(int data) { // A mapping for the values of the joystick
 }
 
 void checkButtons() { // Direction given by the player with the joystick
-  int tempValX = treatValue(analogRead(JOY_X)); // Possible game bug from sending commands before the snake is fully drawn.
-  int tempValY = treatValue(analogRead(JOY_Y));
-  if ((tempValX != joyStickValueCheck) || (tempValY != joyStickValueCheck)) {
-    if (tempValY < joyStickValueCheck) {
-      if(snakeDirection != BOTTOM){
-      snakeDirection = TOP;
-      }
-    } else if (tempValY > joyStickValueCheck) {
-      if(snakeDirection != TOP){
-      snakeDirection = BOTTOM;
-      }
-    } else if (tempValX < joyStickValueCheck) {
-      if(snakeDirection != RIGHT){
-      snakeDirection = LEFT;
-      }
-    } else if (tempValX > joyStickValueCheck) {
-      if(snakeDirection != LEFT){
-      snakeDirection = RIGHT;
+  if (((snakeX[0] >= 0) && (snakeX[0] <= 7))) {
+    if (((snakeY[0] >= 0) && (snakeY[0] <= 7))) {
+      int tempValX = treatValue(analogRead(JOY_X)); // Possible game bug from sending commands before the snake is fully drawn.
+      int tempValY = treatValue(analogRead(JOY_Y));
+      if ((tempValX != joyStickValueCheck) || (tempValY != joyStickValueCheck)) {
+        if (tempValY < joyStickValueCheck) {
+          if (snakeDirection != BOTTOM) {
+            snakeDirection = TOP;
+          }
+        } else if (tempValY > joyStickValueCheck) {
+          if (snakeDirection != TOP) {
+            snakeDirection = BOTTOM;
+          }
+        } else if (tempValX < joyStickValueCheck) {
+          if (snakeDirection != RIGHT) {
+            snakeDirection = LEFT;
+          }
+        } else if (tempValX > joyStickValueCheck) {
+          if (snakeDirection != LEFT) {
+            snakeDirection = RIGHT;
+          }
+        }
       }
     }
   }
 }
-
 void draw() {
   lc.clearDisplay(0);
   drawSnake();
