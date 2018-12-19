@@ -55,9 +55,10 @@ int fruitX, fruitY;
 unsigned long prevTime = 0;    // for gamedelay (ms)
 unsigned long delayTime = 500 ; // Game step in ms
 unsigned long fruitPrevTime = 0;
-unsigned long fruitBlinkTime = 150;
+unsigned long fruitBlinkTime = 100;
 int fruitLed = true;
 bool flagGameOn = false;
+const int joyStickValueCheck = 52;
 
 int melody[] = {
   NOTE_E7, NOTE_E7, NOTE_BREAK, NOTE_E7,
@@ -73,7 +74,7 @@ int melody[] = {
   NOTE_G6, NOTE_E7, NOTE_G7,
   NOTE_A7, NOTE_BREAK, NOTE_F7, NOTE_G7,
   NOTE_BREAK, NOTE_E7, NOTE_BREAK, NOTE_C7,
-  NOTE_D7, NOTE_B6, NOTE_BREAK, NOTE_BREAK,
+  NOTE_D7, NOTE_B6, NOTE_BREAK, NOTE_BREAK
 };
 
 int noteDurations[] = {
@@ -151,12 +152,12 @@ void initializeGame() { //Reset game data for a new game
 void loop() {
   if (flagGameOn == false) {
     playSong();
-    if ((treatValue(analogRead(JOY_X)) != 52) || (treatValue(analogRead(JOY_X)) != 52)) { // Start a new game on joystick button press
+    if ((treatValue(analogRead(JOY_X)) != joyStickValueCheck) || (treatValue(analogRead(JOY_X)) != joyStickValueCheck)) { // Start a new game on joystick button press
       initializeGame();
     }
   }
   if (flagGameOn == true) { // Condition for startin a new game
-    delay(10);      // Without this delay, the snake can "eat" himself by mistake.
+    delay(1);
     checkButtons(); // First checking if there is a button pressed for changing the snakeDirection
 
     unsigned long currentTime = millis();
@@ -171,7 +172,7 @@ void loop() {
 int playSong() {
   int size = sizeof(melody) / sizeof(int);
   for (int thisNote = 0; thisNote < size; thisNote++) {
-    if ((treatValue(analogRead(JOY_X)) != 52) || (treatValue(analogRead(JOY_X)) != 52)) { // Start a new game on joystick button press
+    if ((treatValue(analogRead(JOY_X)) != joyStickValueCheck) || (treatValue(analogRead(JOY_X)) != joyStickValueCheck)) { // Start a new game on joystick button press
       initializeGame();
       return 0;
     }
@@ -188,16 +189,16 @@ int treatValue(int data) { // A mapping for the values of the joystick
 }
 
 void checkButtons() { // Direction given by the player with the joystick
-  int tempValX = treatValue(analogRead(JOY_X));
+  int tempValX = treatValue(analogRead(JOY_X)); // Possible game bug from sending commands before the snake is fully drawn.
   int tempValY = treatValue(analogRead(JOY_Y));
-  if ((tempValX != 52) || (tempValY != 52)) {
-    if (tempValY < 52) {
+  if ((tempValX != joyStickValueCheck) || (tempValY != joyStickValueCheck)) {
+    if (tempValY < joyStickValueCheck) {
       snakeDirection = TOP;
-    } else if (tempValY > 52) {
+    } else if (tempValY > joyStickValueCheck) {
       snakeDirection = BOTTOM;
-    } else if (tempValX < 52) {
+    } else if (tempValX < joyStickValueCheck) {
       snakeDirection = LEFT;
-    } else if (tempValX > 52) {
+    } else if (tempValX > joyStickValueCheck) {
       snakeDirection = RIGHT;
     }
   }
@@ -267,7 +268,7 @@ void nextStep() {
     lcd.print(scoreTime);
     lcd.setCursor(0, 1);
     lcd.print("LEVEL");
-    if (scoreCurrent % 8 == 0) { // After reaching length 8, reset to 3, increase difficulty, bigger score multiplier
+    if (scoreCurrent % 7 == 0) { // After reaching length 8, reset to 3, increase difficulty, bigger score multiplier
       snakeLength = 3;
       delayTime = delayTime - 100;
       scoreMultiplier++;
@@ -322,10 +323,10 @@ void gameOver() { // Display "GAME OVER" message.
   lc.clearDisplay(0);
   for (int d = 0; d < sizeof(gameOverMessage[0]) - 7; d++) {
     for (int col = 0; col < 8; col++) {
-      delay(5);
+      delay(3);
       for (int row = 0; row < 8; row++) {
         // this reads the byte from the PROGMEM and displays it on the screen
-        lc.setLed(0, row, col, pgm_read_byte(&(gameOverMessage[row][col + d])));
+        lc.setLed(0, col, row, pgm_read_byte(&(gameOverMessage[row][col + d])));
       }
     }
   }
