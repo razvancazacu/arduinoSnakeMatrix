@@ -53,7 +53,7 @@ int scoreTime = 0;
 int scoreHigh;
 int fruitX, fruitY;
 unsigned long prevTime = 0;    // for gamedelay (ms)
-unsigned long delayTime = 500 ; // Game step in ms
+unsigned long delayTime = 400 ; // Game step in ms
 unsigned long fruitPrevTime = 0;
 unsigned long fruitBlinkTime = 100;
 int fruitLed = true;
@@ -157,7 +157,7 @@ void loop() {
     }
   }
   if (flagGameOn == true) { // Condition for startin a new game
-    delay(1);
+    delay(10);
     checkButtons(); // First checking if there is a button pressed for changing the snakeDirection
 
     unsigned long currentTime = millis();
@@ -193,13 +193,21 @@ void checkButtons() { // Direction given by the player with the joystick
   int tempValY = treatValue(analogRead(JOY_Y));
   if ((tempValX != joyStickValueCheck) || (tempValY != joyStickValueCheck)) {
     if (tempValY < joyStickValueCheck) {
+      if(snakeDirection != BOTTOM){
       snakeDirection = TOP;
+      }
     } else if (tempValY > joyStickValueCheck) {
+      if(snakeDirection != TOP){
       snakeDirection = BOTTOM;
+      }
     } else if (tempValX < joyStickValueCheck) {
+      if(snakeDirection != RIGHT){
       snakeDirection = LEFT;
+      }
     } else if (tempValX > joyStickValueCheck) {
+      if(snakeDirection != LEFT){
       snakeDirection = RIGHT;
+      }
     }
   }
 }
@@ -268,9 +276,9 @@ void nextStep() {
     lcd.print(scoreTime);
     lcd.setCursor(0, 1);
     lcd.print("LEVEL");
-    if (scoreCurrent % 7 == 0) { // After reaching length 8, reset to 3, increase difficulty, bigger score multiplier
+    if (scoreCurrent % 6 == 0) { // After reaching length 8, reset to 3, increase difficulty, bigger score multiplier
       snakeLength = 3;
-      delayTime = delayTime - 100;
+      delayTime = delayTime - 30;
       scoreMultiplier++;
       lcd.setCursor(6, 1);
       lcd.print(scoreMultiplier);
