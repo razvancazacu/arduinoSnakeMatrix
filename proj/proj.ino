@@ -96,7 +96,6 @@ void setup() {
   lc.shutdown(0, false);
   lc.setIntensity(0, 15);
   lc.clearDisplay(0);
-  Serial.begin(9600);
 
   lcd.begin(16, 2);
   lcd.clear();
@@ -170,7 +169,6 @@ void loop() {
 int playSong() {
   int size = sizeof(melody) / sizeof(int);
   for (int thisNote = 0; thisNote < size; thisNote++) {
-    Serial.println(JOY_BUTTON);
     if ((treatValue(analogRead(JOY_X)) != 52) || (treatValue(analogRead(JOY_X)) != 52)) { // Start a new game on joystick button press
       initializeGame();
       return 0;
