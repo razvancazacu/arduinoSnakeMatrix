@@ -37,6 +37,7 @@
 #define NOTE_A7  3520
 #define NOTE_AS7 3729
 #define NOTE_B7  3951
+#define NOTE_BREAK 0
 
 LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 LedControl lc = LedControl(12, 11, 10, 1);
@@ -96,6 +97,7 @@ void setup() {
   lc.shutdown(0, false);
   lc.setIntensity(0, 15);
   lc.clearDisplay(0);
+  Serial.begin(9600);
 
   lcd.begin(16, 2);
   lcd.clear();
