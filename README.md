@@ -1,1 +1,4 @@
-# arduinoSnakeMatrix
+# SSNAKE
+
+
+#TREBUIE SA FAC README-ul ;(
