@@ -158,7 +158,7 @@ void loop() {
   if (flagGameOn == true) { // Condition for startin a new game
 
     unsigned long currentTimeButtonCheck = millis();
-    if ((currentTimeButtonCheck - buttonCheckTime) >= delayButtonCheck) { 
+    if ((currentTimeButtonCheck - buttonCheckTime) >= delayButtonCheck) {
       checkButtons(); // First checking if there is a button pressed for changing the snakeDirection
       buttonCheckTime = currentTimeButtonCheck;
     }
@@ -292,7 +292,7 @@ void nextStep() { // Movement of the snake
   checkSnakeSuicide(); // After the movement, checking if snake ate himself ( GAMEOVER )
 }
 
-void makeFruit() { // Spawning the fruit 
+void makeFruit() { // Spawning the fruit
   int x, y;
   x = random(0, MATRIX_ROW_COL);
   y = random(0, MATRIX_ROW_COL);
