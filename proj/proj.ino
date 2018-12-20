@@ -61,7 +61,7 @@ unsigned long delayButtonCheck = 0;
 int fruitLed = true;
 bool flagGameOn = false;
 const int joyStickValueCheck = 52;
-
+// Mario theme song
 int melody[] = {
   NOTE_E7, NOTE_E7, NOTE_BREAK, NOTE_E7,
   NOTE_BREAK, NOTE_C7, NOTE_E7, NOTE_BREAK,
@@ -116,7 +116,7 @@ void setup() {
   gameStartIntro();
 }
 
-void gameStartIntro() { //Reset game data for menu and a new game
+void gameStartIntro() { //Reset game data of lcd screen ( new game )
   scoreMultiplier = 1;
   scoreTime = 0;
   flagGameOn = false;
@@ -126,7 +126,7 @@ void gameStartIntro() { //Reset game data for menu and a new game
   delayTime = 500;
   snakeX[0] = 0;
   snakeY[0] = 4;
-  for (int i = 1; i < MAX_SNAKE_LENGTH; i++) {
+  for (int i = 1; i < MAX_SNAKE_LENGTH; i++) {  // Removing the snake off the board
     snakeX[i] = snakeY[i] = -1;
   }
   makeFruit();
@@ -137,7 +137,7 @@ void gameStartIntro() { //Reset game data for menu and a new game
   lcd.print("~Move to start");
 }
 
-void initializeGame() { //Reset game data for a new game
+void initializeGame() { // Reset the lcd screen and and HIGH score from EEPROM mem
   lcd.clear();
   flagGameOn = true;
   lcd.setCursor(0, 0);
@@ -152,16 +152,13 @@ void initializeGame() { //Reset game data for a new game
 }
 
 void loop() {
-  if (flagGameOn == false) {
+  if (flagGameOn == false) {  // The game will not start until flagGameOn is true ( until the joystick is moved )
     playSong();
-    if ((treatValue(analogRead(JOY_X)) != joyStickValueCheck) || (treatValue(analogRead(JOY_X)) != joyStickValueCheck)) { // Start a new game on joystick button press
-      initializeGame();
-    }
   }
   if (flagGameOn == true) { // Condition for startin a new game
 
     unsigned long currentTimeButtonCheck = millis();
-    if ((currentTimeButtonCheck - buttonCheckTime) >= delayButtonCheck) {
+    if ((currentTimeButtonCheck - buttonCheckTime) >= delayButtonCheck) { 
       checkButtons(); // First checking if there is a button pressed for changing the snakeDirection
       buttonCheckTime = currentTimeButtonCheck;
     }
@@ -175,7 +172,7 @@ void loop() {
 }
 
 int playSong() {
-  int size = sizeof(melody) / sizeof(int);
+  int size = sizeof(melody);
   for (int thisNote = 0; thisNote < size; thisNote++) {
     if ((treatValue(analogRead(JOY_X)) != joyStickValueCheck) || (treatValue(analogRead(JOY_X)) != joyStickValueCheck)) { // Start a new game on joystick button press
       initializeGame();
@@ -194,11 +191,11 @@ int treatValue(int data) { // A mapping for the values of the joystick
 }
 
 void checkButtons() { // Direction given by the player with the joystick
-  if (((snakeX[0] >= 0) && (snakeX[0] <= 7))) {
-    if (((snakeY[0] >= 0) && (snakeY[0] <= 7))) {
+  if (((snakeX[0] >= 0) && (snakeX[0] <= MATRIX_ROW_COL))) {
+    if (((snakeY[0] >= 0) && (snakeY[0] < MATRIX_ROW_COL))) {
       int tempValX = treatValue(analogRead(JOY_X)); // Possible game bug from sending commands before the snake is fully drawn.
       int tempValY = treatValue(analogRead(JOY_Y));
-      if ((tempValX != joyStickValueCheck) || (tempValY != joyStickValueCheck)) {
+      if ((tempValX != joyStickValueCheck) || (tempValY != joyStickValueCheck)) { // Condition so that the snake cannot "eat" himself.
         if (tempValY < joyStickValueCheck) {
           if (snakeDirection != BOTTOM) {
             snakeDirection = TOP;
@@ -220,19 +217,19 @@ void checkButtons() { // Direction given by the player with the joystick
     }
   }
 }
-void draw() {
+void draw() {  // Drawing on the matrix the snake and the fruit.
   lc.clearDisplay(0);
   drawSnake();
   drawFruit();
 }
 
-void drawSnake() {
+void drawSnake() { // Depending on the coord. of the snake, turn on the lcd led from (SnakeX[i],SnakeY[i}).
   for (int i = 0; i < snakeLength; i++) {
     lc.setLed(0, snakeX[i], snakeY[i], true);
   }
 }
 
-void drawFruit() {
+void drawFruit() { // Same as drawSnake only that it's turning on and off so that it blinks
   if (fruitInTable(fruitX, fruitY)) {
     unsigned long currentTime = millis();
     if ((currentTime - fruitPrevTime) >= fruitBlinkTime) { // Blinking fruit
@@ -243,28 +240,28 @@ void drawFruit() {
   }
 }
 
-bool fruitInTable(int x, int y) {
-  return (x >= 0) && (x <= 7) && (y >= 0) && (y <= 7);
+bool fruitInTable(int x, int y) { // Making sure that the fruit is in the table
+  return (x >= 0) && (x < MATRIX_ROW_COL) && (y >= 0) && (y < MATRIX_ROW_COL);
 }
 
-void nextStep() {
+void nextStep() { // Movement of the snake
   for (int i = snakeLength - 1; i > 0; i--) { //Checking for cases in which snake it's passing from side to side
-    if ((snakeDirection == RIGHT) && (snakeX[0] - snakeLength == 7)) {
+    if ((snakeDirection == RIGHT) && (snakeX[0] - snakeLength == 7)) { // If the edge has been reached, snake head is moved on the other side and final movement is finished.
       snakeX[0] = -1;
-    } else if ((snakeDirection == LEFT) && (snakeX[0] + snakeLength == 0)) {
-      snakeX[0] = 8;
+    } else if ((snakeDirection == LEFT) && (snakeX[0] + snakeLength == 0)) { // Same rule for the others
+      snakeX[0] = MATRIX_ROW_COL;
     } else {
       snakeX[i] = snakeX[i - 1];
     }
     if ((snakeDirection == TOP) && (snakeY[0] + snakeLength == 0)) {
-      snakeY[0] = 8;
+      snakeY[0] = MATRIX_ROW_COL;
     } else if ((snakeDirection == BOTTOM) && (snakeY[0] - snakeLength == 7)) {
       snakeY[0] = -1;
     } else {
       snakeY[i] = snakeY[i - 1];
     }
   }
-  if (snakeDirection == TOP) {  // "head" of the snake is advancing"
+  if (snakeDirection == TOP) {  // This is the snake head movement. The snake movement is based around the "head".
     snakeY[0] = snakeY[0] - 1;
   } else if (snakeDirection == RIGHT) {
     snakeX[0] = snakeX[0] + 1;
@@ -277,17 +274,17 @@ void nextStep() {
     snakeLength++;
     scoreCurrent++;
     makeFruit();
-    scoreTime = scoreTime + BASE_SCORE * scoreMultiplier;
-    lcd.setCursor(0, 0);
+    scoreTime = scoreTime + BASE_SCORE * scoreMultiplier; // score is increased based on the multiplier
+    lcd.setCursor(0, 0);  // lcd gets updated with current data
     lcd.print("SCORE");
     lcd.setCursor(6, 0);
     lcd.print(scoreTime);
     lcd.setCursor(0, 1);
     lcd.print("LEVEL");
-    if (scoreCurrent % 5 == 0) { // After reaching length 8, reset to 3, increase difficulty, bigger score multiplier
+    if (scoreCurrent % 8 == 0) { // After reaching length 8, reset to 3, increase difficulty, bigger score multiplier
       snakeLength = 3;
-      delayTime = delayTime - 30;
-      scoreMultiplier++;
+      delayTime = delayTime - 30; // A much faster game -> a more difficult game
+      scoreMultiplier++;  // More points
       lcd.setCursor(6, 1);
       lcd.print(scoreMultiplier);
     }
@@ -295,7 +292,7 @@ void nextStep() {
   checkSnakeSuicide(); // After the movement, checking if snake ate himself ( GAMEOVER )
 }
 
-void makeFruit() {
+void makeFruit() { // Spawning the fruit 
   int x, y;
   x = random(0, MATRIX_ROW_COL);
   y = random(0, MATRIX_ROW_COL);
@@ -307,7 +304,7 @@ void makeFruit() {
   fruitY = y;
 }
 
-boolean isPartOfSnake(int x, int y) {
+boolean isPartOfSnake(int x, int y) { // Checking if the coord. for the fruit are on top of the snake.
   for (int i = 0; i < snakeLength - 1; i++) {
     if ((x == snakeX[i]) && (y == snakeY[i])) {
       return true;
@@ -316,7 +313,7 @@ boolean isPartOfSnake(int x, int y) {
   return false;
 }
 
-void checkSnakeSuicide() {
+void checkSnakeSuicide() { // If snake eats himself we have a gameOver()
   for (int i = 1; i < snakeLength; i++) {
     if ((snakeX[0] == snakeX[i]) && (snakeY[0] == snakeY[i])) {
       gameOver();
