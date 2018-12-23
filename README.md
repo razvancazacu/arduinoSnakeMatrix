@@ -19,6 +19,7 @@ Score and Difficulty:
   - The score is calculated by basescore(100)*multiplier(x1 at lvl 1) + old score.
   - The multiplier is increased by 1 every 8 fruits eaten.
   - The difficulty is increased by making the snake move faster using the same rule as the multiplier
+  - In case of a new HIGHSCORE beeing reached, the score is written into the EEPROM memory of the arduino.
  
 # Quick rundown:
  * At the start of the game we are greeted by the LCD screen with a message and a music played ( in this case is mario theme song).
